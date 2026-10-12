@@ -54,23 +54,24 @@ button:focus-visible,input:focus-visible,label:focus-visible{outline:3px solid v
 .icon-btn .badge{position:absolute;top:-4px;right:-4px;background:var(--accent);color:#fff;font-family:var(--display);font-size:12px;min-width:18px;height:18px;border-radius:9px;display:grid;place-items:center;padding:0 4px}
 
 /* routine stickers */
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px}
+.cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
 .card{position:relative}
-.card .tap{width:100%;min-height:92px;border-radius:20px 22px 18px 24px;background:var(--paper);border:2.5px dashed var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 6px;transition:transform .15s,background .2s}
+.card .tap{width:100%;height:100%;min-height:70px;border-radius:15px 17px 14px 18px;background:var(--paper);border:2.5px dashed var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:10px 3px 7px;transition:transform .15s,background .2s}
 .card .tap:active{transform:scale(.95)}
-.card .tap .ico{font-size:32px;line-height:1;width:38px;height:38px;display:grid;place-items:center}
-.card .tap .ico img{width:38px;height:38px;border-radius:50%;object-fit:cover}
-.card .tap .nm{font-weight:700;font-size:17px;text-align:center;word-break:keep-all;overflow-wrap:anywhere;line-height:1.1}
+.card .tap .ico{font-size:24px;line-height:1;width:28px;height:28px;display:grid;place-items:center}
+.card .tap .ico img{width:28px;height:28px;border-radius:50%;object-fit:cover}
+.card .tap .nm{font-weight:700;font-size:12.5px;text-align:center;word-break:keep-all;overflow-wrap:anywhere;line-height:1.1}
 .card .tap .ico{filter:grayscale(.55);opacity:.75;transition:filter .2s,opacity .2s}
 .card.done .tap{background:var(--c);border:2.5px solid var(--ink)}
 .card.done .tap .ico{filter:none;opacity:1}
-.card .stamp{position:absolute;left:6px;top:6px;width:24px;height:24px;border-radius:50%;background:var(--check);color:#fff;display:none;place-items:center;transform:rotate(-12deg)}
+.card .stamp{position:absolute;left:3px;top:3px;width:17px;height:17px;border-radius:50%;background:var(--check);color:#fff;display:none;place-items:center;transform:rotate(-12deg)}
 .card.done .stamp{display:grid}
-.card .stamp svg{width:15px;height:15px}
-.card .edit{position:absolute;right:2px;top:2px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:var(--muted)}
-.card .edit svg{width:17px;height:17px}
+.card .stamp svg{width:11px;height:11px}
+.card .edit{position:absolute;right:0;top:0;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:var(--muted)}
+.card .edit svg{width:12px;height:12px}
 .card.add .tap{border-style:dashed;border-color:var(--accent);color:var(--accent-ink);font-family:var(--display)}
-.card.add .tap .plus{font-size:34px;line-height:1}
+.card.add .tap .plus{font-size:24px;line-height:1}
+.card.add .tap{font-size:12px}
 .hint{background:var(--paper);border:2px dashed var(--accent);border-radius:14px;padding:8px 12px;font-size:16px;display:flex;gap:8px;align-items:flex-start}
 .hint p{margin:0;flex:1}
 .hint button{color:var(--accent-ink);font-weight:700}
@@ -183,7 +184,6 @@ label.btn{display:block;text-align:center;cursor:pointer}
       </button>
       <button class="icon-btn" id="trashBtn" aria-label="휴지통 열기">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M5.5 7l1 12.5a2 2 0 0 0 2 1.5h7a2 2 0 0 0 2-1.5L18.5 7M9 7V4.5h6V7"/></svg>
-        <span class="badge" id="trashCount" hidden></span>
       </button>
     </section>
     <div id="hint" class="hint" hidden><p>지금 보이는 루틴은 예시예요. 연필 버튼으로 이름과 아이콘을 바꾸거나 지울 수 있어요.</p><button id="hintClose">알겠어요</button></div>
@@ -290,8 +290,6 @@ function renderToday(){
   }
   h+='<div class="card add"><button class="tap" id="addBtn"><span class="plus">+</span><span>루틴 추가</span></button></div>';
   $('#cards').innerHTML=h;
-  const trashN=state.routines.filter(r=>r.deleted).length;
-  const b=$('#trashCount');b.hidden=!trashN;b.textContent=trashN;
   $('#hint').hidden=!(state.hint&&state.routines.some(r=>r.id.startsWith('ex')));
 }
 function renderCalendar(){
@@ -349,26 +347,22 @@ function openEdit(id){
   const r=id?byId(id):null;
   draft={id:id||null,name:r?r.name:'',icon:r?{...r.icon}:{type:'emoji',value:suggest('')},touched:!!r,
          color:r?r.color:COLORS[state.routines.length%COLORS.length]};
-  const grid=CUTE.map(e=>'<button type="button" data-em="'+e+'">'+e+'</button>').join('');
   openSheet(
    '<h2>'+(r?'루틴 수정':'새 루틴')+'</h2>'+
    '<div class="field"><label for="rName">루틴 이름</label><input type="text" id="rName" maxlength="20" placeholder="예: 물 2L 마시기" value="'+esc(draft.name)+'"><p class="err" id="rErr" hidden>루틴 이름을 적어 주세요.</p></div>'+
    '<div class="field"><span class="lab">아이콘</span><div class="icon-pick">'+
      '<div class="big-ico" id="bigIco" style="--c:'+esc(draft.color)+'"></div>'+
-     '<div class="icon-actions"><input type="text" id="rEmoji" aria-label="이모티콘 직접 입력" placeholder="이모티콘 입력">'+
-     '<div class="pill-row"><label class="pill" for="rPhoto" tabindex="0">사진 등록</label><button type="button" class="pill" id="rSuggest">추천 받기</button></div>'+
+     '<div class="icon-actions"><input type="text" id="rEmoji" aria-label="이모티콘 직접 입력" placeholder="눌러서 이모지 입력">'+
+     '<label class="pill" for="rPhoto" tabindex="0">사진으로 등록</label>'+
      '<input type="file" id="rPhoto" accept="image/*" hidden></div></div>'+
-     '<div class="emoji-grid" id="emGrid">'+grid+'</div></div>'+
+     '</div>'+
    '<div class="sheet-actions"><button class="btn ghost" id="sCancel">취소</button><button class="btn primary" id="sSave">저장</button></div>'+
    (r?'<button class="btn warn" id="sDelete">휴지통으로 보내기</button>':'')
   );
   paintIcon();
   const nameEl=$('#rName');
-  nameEl.addEventListener('input',()=>{draft.name=nameEl.value;$('#rErr').hidden=true;
-    if(!draft.touched){const s=suggest(draft.name,draft.id);if(s!==draft.icon.value&&RULES.some(([re])=>re.test(draft.name))){draft.icon={type:'emoji',value:s};paintIcon()}}});
+  nameEl.addEventListener('input',()=>{draft.name=nameEl.value;$('#rErr').hidden=true});
   $('#rEmoji').addEventListener('input',e=>{const g=firstGrapheme(e.target.value);if(g){draft.icon={type:'emoji',value:g};draft.touched=true;paintIcon()}});
-  $('#emGrid').addEventListener('click',e=>{const b=e.target.closest('[data-em]');if(!b)return;draft.icon={type:'emoji',value:b.dataset.em};draft.touched=true;paintIcon()});
-  $('#rSuggest').addEventListener('click',()=>{let s=suggest(draft.name,draft.id),n=0;while(s===draft.icon.value&&n++<8)s=suggest('',draft.id);draft.icon={type:'emoji',value:s};draft.touched=true;paintIcon()});
   document.querySelector('label[for="rPhoto"]').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('#rPhoto').click()}});
   $('#rPhoto').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(!f)return;
     const rd=new FileReader();rd.onload=()=>{const img=new Image();img.onload=()=>{
@@ -384,7 +378,6 @@ function openEdit(id){
 }
 function paintIcon(){
   const b=$('#bigIco');if(!b)return;b.innerHTML=iconHTML(draft.icon);
-  document.querySelectorAll('#emGrid [data-em]').forEach(x=>x.classList.toggle('sel',draft.icon.type==='emoji'&&x.dataset.em===draft.icon.value));
 }
 function saveDraft(){
   const name=$('#rName').value.trim();
